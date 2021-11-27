@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<!--
+	Awesome Responsive Template
+	templatestock.co
+-->
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous"></script>
+	<title>SP Games</title>
+	<!-- Goggle Font -->
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+
+	<!-- Font Css -->
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+
+	<!-- Custom CSS -->
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+	<!-- Animation Css -->
+	<link rel="stylesheet" href="css/animate.css">
+
+	<script>
+		$(document).ready(function () {
+
+            var userData = localStorage.getItem('userInfo');
+			userData = JSON.parse(userData);
+			console.log(userData);
+
+			if (userData===null) {
+				document.getElementById("AddGame").style.display = "none";
+				document.getElementById("AddCat").style.display = "none";
+				document.getElementById("InBut").style.display = "block";
+				document.getElementById("RegBut").style.display = "block";
+				document.getElementById("OutBut").style.display = "none";
+				document.getElementById("revSub").style.display = "none";
+				
+			} else if (userData[0].role==="Admin") {
+				document.getElementById("AddGame").style.display = "block";
+				document.getElementById("AddCat").style.display = "block";
+				document.getElementById("InBut").style.display = "none";
+				document.getElementById("RegBut").style.display = "none";
+				document.getElementById("OutBut").style.display = "block";
+				document.getElementById("revSub").style.display = "none";
+
+			} else if  (userData[0].role==="Customer"){
+				document.getElementById("AddGame").style.display = "none";
+				document.getElementById("AddCat").style.display = "none";
+				document.getElementById("InBut").style.display = "none";
+				document.getElementById("RegBut").style.display = "none";
+				document.getElementById("OutBut").style.display = "block";
+				document.getElementById("revSub").style.display = "block";
+
+            }
+            
+            var urlParams = new URLSearchParams(window.location.search);
+            var url = 'http://localhost:8081/games';
+			var title = urlParams.get('title');
+			var gid = urlParams.get('gameid');
+			console.log(title);
+			console.log(gid);
+			$.ajax({
+				url: url + '/' + title,
+				type: 'GET', 
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (data, textStatus, xhr) {
+					if (data != null) {
+						var gameDisplay = "";
+						console.log(data);
+						data = data;
+
+						for (var i = 0; i < data.length; i++) {
+							var gameData = data[i];
+							console.log(gameData);
+
+							gameRow = `         
+								<div class="col-md-12" style="margin-top: 2rem;">
+                                    <div class="card-body">
+                                        <h4 class="card-text" align="center">${gameData.title}</h4>
+										<img src=${gameData.picture} class="center">
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Platform</u></b></h4>
+										<h4 class="card-text" align="center">${gameData.platform}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Category</u></b></h4>
+										<h4 class="card-text" align="center">${gameData.catname}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Published Year</u></b></h4>
+										<h4 class="card-text" align="center">${gameData.year}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Description</u></b></h4>
+										<h4 class="card-text" align="center">${gameData.description}</h4>
+									</div>
+                                    <div class="boxed" align="center">
+                                        <h4 class="card-text" align="center"><b><u>Price</u></b></h4>
+										$${gameData.price}
+									</div>
+								</div>
+							`
+							gameDisplay += gameRow;
+						}
+						$("#posts").html(gameDisplay)
+					} else {
+						console.log("Error");
+					}
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					console.log('Error in Operation');
+				}
+			});
+			$.ajax({
+				url: 'http://localhost:8081/games/' + gid + '/review',
+				type: 'GET',
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (data, textStatus, xhr) {
+					if (data != null) {
+						var reviews = '';
+						console.log(data);
+						data = data;
+
+						for (var i = 0; i < data.length; i++) {
+							var reviewsData = data[i];
+							console.log(reviewsData);
+
+							reviewRow = `
+                            <div class="col-md-3" style="margin-left: 7rem;margin-top: 2rem;background-color:grey;">
+                                <br>Name: ${reviewsData.username}</br>
+								<br>Posted: ${reviewsData.created_at}</br>
+								<br>Rating: ${reviewsData.rating}/5</br>
+								<br>Content: ${reviewsData.content}</br>
+                            </div>
+							`
+							reviews += reviewRow;
+						}
+						$("#Reviews").html(reviews);
+
+					} else {
+						console.log("Error");
+					}
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					console.log('Error in Operation');
+				}
+			});
+			$("#submitReview").click(function () {
+				var userData = localStorage.getItem('userInfo');
+                userData = JSON.parse(userData);
+				var gameid = gid;
+				var userid = userData[0].userid;
+				var rating = $('#ratingVal').val();
+				var content = $('#reviewDes').val();
+				var tmpToken = localStorage.getItem('token');
+				var data = "{\"gameid\":\""+gameid+"\", \"userid\":\""+userid+"\", \"rating\":\""+rating+"\", \"content\":\""+content+"\"}";
+				console.log(data);
+				$.ajax({
+					headers: { 'Authorization': 'Bearer ' + tmpToken },
+					url: 'http://localhost:8081/user/'+userid+'/game/'+gid+'/review/',
+					type: 'POST',
+					data: data,
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					success: function (data, textStatus, xhr) {
+						if (data != null) {
+                            console.log(data);
+							var title = urlParams.get('title');
+							var gid = urlParams.get('gameid');
+							window.location.assign(`http://localhost:3001/game.html?title=${title}&gameid=${gid}`);
+						} else {
+							console.log("Error");
+						}
+					},
+					error: function (xhr, textStatus, errorThrown) {
+						console.log('Error in Operation');
+					}
+				});
+				return false;
+			});
+			return false;
+        });
+		$(document).ready(function () {
+			$.ajax({
+				url: 'http://localhost:8081/values',
+				type: 'GET',
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (data, textStatus, xhr) {
+					if (data != null) {
+						var platform = `<option value="Platform">Platform</option>`;
+						console.log(data);
+						data = data;
+
+						for (var i = 0; i < data.length; i++) {
+							var valuesData = data[i];
+							console.log(valuesData);
+
+							platformRow = `
+							<option value=${valuesData.platform}>${valuesData.platform}</option>
+							`
+							platform += platformRow;
+						}
+						$("#searchPlatform").html(platform);
+						
+					} else {
+						console.log("Error");
+					}
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					console.log('Error in Operation');
+				}
+			});
+			return false;
+		});
+		$(document).ready(function () {
+			$.ajax({
+				url: 'http://localhost:8081/valuess',
+				type: 'GET',
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (data, textStatus, xhr) {
+					if (data != null) {
+						var price = `<option value="Price">Price</option>`;
+						console.log(data);
+						data = data;
+
+						for (var i = 0; i < data.length; i++) {
+							var valuesData = data[i];
+							console.log(valuesData);
+
+							priceRow = `
+							<option value=${valuesData.price}>${valuesData.price}</option>
+							`
+
+							price += priceRow;
+						}
+
+						$("#searchPrice").html(price);
+					} else {
+						console.log("Error");
+					}
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					console.log('Error in Operation');
+				}
+			});
+			return false;
+		});
+		$(document).ready(function () {
+			$("#OutBut").click(function () {
+
+				localStorage.removeItem('token');
+				localStorage.removeItem('userInfo');
+				window.location.assign("http://localhost:3001/login.html");
+			})
+		});
+		$(document).ready(function () {
+			$("#Search").click(function () {
+				var platform = $('#searchPlatform').val();
+				var title = $('#searchTitle').val();
+                var price = $('#searchPrice').val();
+				var data = "{\"platform\":\""+platform+"\", \"title\":\""+title+"\", \"price\":\""+price+"\"}";
+				console.log(data);
+				$.ajax({
+					url: 'http://localhost:8081/games/'+platform+'/'+title+'/'+price,
+					type: 'GET',
+					data: data,
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					success: function (data, textStatus, xhr) {
+                        window.location.assign(`http://localhost:3001/game.html?title=${data[0].title}`);
+						if (data != null) {
+                            console.log(data);
+                            var title = `${data[0].title}`
+							gameDisplay = `
+                            <div class="col-md-12" style="margin-top: 2rem;">
+									<div class="card-body">
+										<img src=${data[0].picture} class="center">
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Platform</u></b></h4>
+										<h4 class="card-text" align="center">${data[0].platform}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Category</u></b></h4>
+										<h4 class="card-text" align="center">${data[0].catname}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Published Year</u></b></h4>
+										<h4 class="card-text" align="center">${data[0].year}</h4>
+                                    </div>
+                                    <div class="boxed">
+                                        <h4 class="card-text" align="center"><b><u>Description</u></b></h4>
+										<h4 class="card-text" align="center">${data[0].description}</h4>
+									</div>
+                                    <div class="boxed" align="center">
+                                        <h4 class="card-text" align="center"><b><u>Price</u></b></h4>
+										$${data[0].price}
+									</div>
+								</div>
+							`
+							$("#posts").html(gameDisplay);
+							$("#gametitle").html(title);
+						} else {
+							console.log("Error");
+						}
+					},
+					error: function (xhr, textStatus, errorThrown) {
+						console.log('Error in Operation');
+					}
+				});
+				return false;
+			});
+		}); 
+		$(document).ready(function () {
+			
+		}); 
+	</script>
+</head>
+
+<body>
+	<!-- Header -->
+	<div class="header-div">
+
+		<nav class="navbar navbar-default">
+			<div class="container">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header logo-div bounceInLeft wow" data-wow-duration="2s">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+						data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Singapore Polytechnic</a>
+				</div>
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse top-right-menu-ul bounceInRight wow"
+					id="bs-example-navbar-collapse-1" data-wow-duration="4s">
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<button type="submit" class="btn btn-primary" id="Search">Search</button>
+						</li>
+						<li>
+							<div class="form-group">
+								<textarea class="form-control" id="searchTitle" rows="1"
+									placeholder="Search by Title"></textarea>
+							</div>
+						</li>
+						<li>
+							<div>
+								<select class="dropdown" id="searchPlatform" name="Search by Platform"></select>
+							</div>
+						</li>
+						<li>
+							<div>
+								<select class="dropdown" id="searchPrice" name="Search by Price"></select>
+							</div>
+						</li>
+						<li>
+							<div>
+								<a href="http://localhost:3001/home.html">Games</a>
+							</div>
+						</li>
+						<li>
+							<div>
+								<a href="http://localhost:3001/categories.html">Categories</a>
+							</div>
+						</li>
+						<li>
+							<div class="AddGame" id="AddGame">
+								<a href="addgame.html">Add Game</a>
+							</div>
+						</li>
+						<li>
+							<div class="AddCat" id="AddCat">
+								<a href="addcategory.html">Add Category</a>
+							</div>
+						</li>
+						<li>
+							<div class="InBut" id="InBut">
+								<a href="login.html">Log In</a>
+							</div>
+						</li>
+						<li>
+							<div class="RegBut" id="RegBut">
+								<a href="login.html">Register</a>
+							</div>
+						</li>
+						<li>
+							<div class="OutBut" id="OutBut">
+								<a>Log Out</a>
+							</div>
+						</li>
+					</ul>
+				</div><!-- End navbar-collapse -->
+			</div><!-- End container -->
+		</nav>
+
+		<div class="container wow bounceInDown" data-wow-duration="5s">
+			<div class="row">
+				<div class="col-md-offset-2 col-md-8 text-center slide-text">
+					<h1>SP Games</h1>
+					<p>Game like never before</p>
+				</div><!-- End col-md-8-->
+				<div class="col-md-offset-2"></div><!-- End col-md-offset-2 -->
+			</div><!-- End Row -->
+		</div><!-- End Contanier -->
+
+	</div><!-- End header-div -->
+
+	<!-- Top Navigation -->
+	<div class="flex-container">
+
+		<!-- Categories -->
+		<div class="container" id="Categories">
+			<div class="col-md-4">
+				<div class="main_heading">
+					<h2>Categories</h2>
+					<div class="text-center"><span class="underline"></span></div>
+				</div>
+			</div>
+		</div><!-- End container -->
+		<!-- End Categories -->
+	</div>
+
+	<!--This is the Featured Game-->
+	<div class="more-feature-div" id="featured">
+		<h1>Featured Game</h1>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<img src="images/MonsterHunterWorld.jpg">
+				</div><!-- End col-md-6-->
+				<div class="col-md-6">
+					<div class="more-features-div">
+						<h3 class="more-features-div-heading">Monster Hunter World</h3>
+						<div class="more-features-div-description">
+							In the game, the player takes the role of a Hunter, tasked to hunt down and either kill
+							or trap monsters that roam in one of several environmental spaces.
+						</div>
+					</div>
+				</div><!-- End col-md-6-->
+			</div><!-- End row -->
+		</div><!-- ENd container -->
+	</div>
+
+	<!-- End Feature -->
+
+	<!-- This is the main page Games -->
+
+	<div class="container" id="Games">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="main_heading">
+					<h1 id="gametitle">Games</h1>
+					<div class="text-center"><span class="underline"></span></div>
+				</div>
+			</div><!-- End col-md-12 -->
+		</div><!-- End row -->
+
+		<div id="posts">
+			<div class="card" style="margin-top: 2rem;">
+				<div class="card-body">
+					<h4 class="card-text">Title</h4>
+				</div>
+				<div class="card-footer text-muted">
+					Description
+				</div>
+			</div>
+
+		</div>
+
+
+	</div><!-- End Container -->
+
+	<div id="revSub">
+		<div>
+			<h4>Leave a Review</h4>
+		</div>
+
+		<div>
+			<select class="dropdown" id="ratingVal" name="Rating (0-5)">
+				<option value='1'>1</option>
+				<option value='2'>2</option>
+				<option value='3'>3</option>
+				<option value='4'>4</option>
+				<option value='5'>5</option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<textarea class="form-control" id="reviewDes" rows="5"
+				placeholder="Review Description"></textarea>
+		</div>
+
+		<div>
+			<button id="submitReview">Add Review</button>
+		</div>
+	</div>
+		
+	<!-- Testimonial -->
+	<div class="call-action-color">
+		<div class="container" id="Reviews">
+
+		</div><!-- End container -->
+	</div>
+
+	<!-- End Testimonial -->
+
+	<!-- Footer -->
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12 footer-social">
+					<a href="#"><i class="fa fa-facebook"></i></a>
+					<a href="#"><i class="fa fa-dribbble"></i></span></a>
+					<a href="#"><i class="fa fa-twitter"></i></a>
+					<a href="#"><i class="fa fa-instagram"></i></a>
+					<a href="#"><i class="fa fa-google-plus"></i></a>
+					<a href="#"><i class="fa fa-pinterest"></i></a>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<!-- End Footer -->
+
+
+	<script type="text/javascript" src="js/jquery-main.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script src="js/wow.min.js"></script>
+
+	<script>
+		new WOW().init();
+	</script>
+
+</body>
+
+</html>
